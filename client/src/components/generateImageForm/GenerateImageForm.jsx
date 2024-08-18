@@ -1,11 +1,12 @@
 /* eslint-disable react/prop-types */
-// import React, { useState } from "react";
-// import { useNavigate } from "react-router-dom";
+
 import { AutoAwesome, CreateRounded } from "@mui/icons-material";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { CreatePost, GenerateAIImage } from "../../api/index.js";
 import Button from "../button/button";
 import TextInput from "../textInput/TextInput";
-// import { CreatePost, GenerateAIImage } from "../api";
 
 const Form = styled.div`
   flex: 1;
@@ -52,35 +53,36 @@ const GenerateImageForm = ({
   generateImageLoading,
   setCreatePostLoading,
 }) => {
-  //   const navigate = useNavigate();
-  //   const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const [error, setError] = useState("");
   const generateImageFunc = async () => {
     setGenerateImageLoading(true);
-    // await GenerateAIImage({ prompt: post.prompt })
-    //   .then((res) => {
-    //     setPost({
-    //       ...post,
-    //       photo: `data:image/jpge;base64,${res?.data?.photo}`,
-    //     });
-    //     setGenerateImageLoading(false);
-    //   })
-    //   .catch((error) => {
-    //     setError(error?.response?.data?.message);
-    //     setGenerateImageLoading(false);
-    //   });
+    await GenerateAIImage({ prompt: post.prompt })
+      .then((res) => {
+        setPost({
+          ...post,
+          photo: `data:image/jpge;base64,${res?.data?.photo}`,
+        });
+        setGenerateImageLoading(false);
+      })
+      .catch((error) => {
+        setError(error?.response?.data?.message);
+        setGenerateImageLoading(false);
+      });
   };
 
   const createPostFunc = async () => {
     setCreatePostLoading(true);
-    // await CreatePost(post)
-    //   .then((res) => {
-    //     setCreatePostLoading(false);
-    //     navigate("/");
-    //   })
-    //   .catch((error) => {
-    //     setError(error?.response?.data?.message);
-    //     setCreatePostLoading(false);
-    //   });
+    await CreatePost(post)
+      .then((res) => {
+        setCreatePostLoading(false);
+        navigate("/");
+        console.log(res);
+      })
+      .catch((error) => {
+        setError(error?.response?.data?.message);
+        setCreatePostLoading(false);
+      });
   };
 
   return (
@@ -109,7 +111,7 @@ const GenerateImageForm = ({
           value={post.prompt}
           handelChange={(e) => setPost({ ...post, prompt: e.target.value })}
         />
-        {/* {error && <div style={{ color: "red" }}>{error}</div>} */}
+        {error && <div style={{ color: "red" }}>{error}</div>}
         ** You can post the AI Generated Image to the Community **
       </Body>
       <Actions>

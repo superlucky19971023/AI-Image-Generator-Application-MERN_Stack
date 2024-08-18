@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 // import React from 'react'
 
 import { SearchOutlined } from "@mui/icons-material";
@@ -16,7 +17,7 @@ const Container = styled.div`
   align-items: center;
 `;
 
-export default function SearchBar() {
+export default function SearchBar({ search, setSearch }) {
   return (
     <Container>
       <input
@@ -26,7 +27,10 @@ export default function SearchBar() {
           color: "inherit",
           width: "100%",
           background: "transparent",
+          fontSize: "16px",
         }}
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
       />
       <SearchOutlined />
     </Container>

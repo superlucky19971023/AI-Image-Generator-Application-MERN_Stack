@@ -1,4 +1,7 @@
+import { CircularProgress } from "@mui/material";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
+import { GetPosts } from "../api";
 import ImageCards from "../components/cards/ImageCards";
 import SearchBar from "../components/searchBar/SearchBar";
 
@@ -68,65 +71,88 @@ const CardWrapper = styled.div`
 `;
 
 export default function Home() {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [filteredPosts, setFilteredPosts] = useState([]);
+
+  const getPosts = async () => {
+    setLoading(true);
+    await GetPosts()
+      .then((res) => {
+        setLoading(false);
+        setPosts(res?.data?.data);
+        setFilteredPosts(res?.data?.data);
+      })
+      .catch((error) => {
+        setError(error?.response?.data?.message);
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    getPosts();
+  }, []);
+
+  //Search
+  useEffect(() => {
+    if (!search) {
+      setFilteredPosts(posts);
+    }
+
+    const SearchFilteredPosts = posts.filter((post) => {
+      const promptMatch = post?.prompt
+        ?.toLowerCase()
+        .includes(search.toString().toLowerCase());
+      const authorMatch = post?.name
+        ?.toLowerCase()
+        .includes(search.toString().toLowerCase());
+
+      return promptMatch || authorMatch;
+    });
+
+    if (search) {
+      setFilteredPosts(SearchFilteredPosts);
+    }
+  }, [posts, search]);
+
   return (
     <Container>
       <Headline>
         Explore popular posts from the community. <Span>Generated with AI</Span>
       </Headline>
-      <SearchBar />
+      <SearchBar search={search} setSearch={setSearch} />
       <Wrapper>
-        <CardWrapper>
-          <ImageCards
-            photo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQs7HJd8Z49RoOjQKdwz0fUP9HT2apELvETfDZqoErZaHmVdttJ0Cretq9T0APfN5aagqU&usqp=CAU"
-            author="Shaed Noor"
-            prompt="picasso art pastel man potrait"
-          />
-          <ImageCards
-            photo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQs7HJd8Z49RoOjQKdwz0fUP9HT2apELvETfDZqoErZaHmVdttJ0Cretq9T0APfN5aagqU&usqp=CAU"
-            author="Shaed Noor"
-            prompt="picasso art pastel man potrait"
-          />
-          <ImageCards
-            photo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQs7HJd8Z49RoOjQKdwz0fUP9HT2apELvETfDZqoErZaHmVdttJ0Cretq9T0APfN5aagqU&usqp=CAU"
-            author="Shaed Noor"
-            prompt="picasso art pastel man potrait"
-          />
-          <ImageCards
-            photo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQs7HJd8Z49RoOjQKdwz0fUP9HT2apELvETfDZqoErZaHmVdttJ0Cretq9T0APfN5aagqU&usqp=CAU"
-            author="Shaed Noor"
-            prompt="picasso art pastel man potrait"
-          />
-          <ImageCards
-            photo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQs7HJd8Z49RoOjQKdwz0fUP9HT2apELvETfDZqoErZaHmVdttJ0Cretq9T0APfN5aagqU&usqp=CAU"
-            author="Shaed Noor"
-            prompt="picasso art pastel man potrait"
-          />
-          <ImageCards
-            photo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQs7HJd8Z49RoOjQKdwz0fUP9HT2apELvETfDZqoErZaHmVdttJ0Cretq9T0APfN5aagqU&usqp=CAU"
-            author="Shaed Noor"
-            prompt="picasso art pastel man potrait"
-          />
-          <ImageCards
-            photo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQs7HJd8Z49RoOjQKdwz0fUP9HT2apELvETfDZqoErZaHmVdttJ0Cretq9T0APfN5aagqU&usqp=CAU"
-            author="Shaed Noor"
-            prompt="picasso art pastel man potrait"
-          />
-          <ImageCards
-            photo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQs7HJd8Z49RoOjQKdwz0fUP9HT2apELvETfDZqoErZaHmVdttJ0Cretq9T0APfN5aagqU&usqp=CAU"
-            author="Shaed Noor"
-            prompt="picasso art pastel man potrait"
-          />
-          <ImageCards
-            photo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQs7HJd8Z49RoOjQKdwz0fUP9HT2apELvETfDZqoErZaHmVdttJ0Cretq9T0APfN5aagqU&usqp=CAU"
-            author="Shaed Noor"
-            prompt="picasso art pastel man potrait"
-          />
-          <ImageCards
-            photo="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQs7HJd8Z49RoOjQKdwz0fUP9HT2apELvETfDZqoErZaHmVdttJ0Cretq9T0APfN5aagqU&usqp=CAU"
-            author="Shaed Noor"
-            prompt="picasso art pastel man potrait"
-          />
-        </CardWrapper>
+        {error && <div style={{ color: "red" }}>{error}</div>}
+        {loading ? (
+          <CircularProgress />
+        ) : (
+          <>
+            {filteredPosts.length === 0 ? (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  textAlign: "center",
+                }}
+              >
+                No Posts Found
+              </div>
+            ) : (
+              <CardWrapper>
+                <>
+                  {filteredPosts
+                    .slice()
+                    .reverse()
+                    .map((item, index) => (
+                      <ImageCards key={index} item={item} />
+                    ))}
+                </>
+              </CardWrapper>
+            )}
+          </>
+        )}
       </Wrapper>
     </Container>
   );
